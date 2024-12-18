@@ -1,20 +1,22 @@
-import react from 'react';
+import React from 'react';
+import * as ReactDOM from 'react-dom/client';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import App from './App';
+
 const client = new ApolloClient({
-    uri: 'http://localhost:4000/',
-    cache: new InMemoryCache(),
-  });
+  uri: 'https://flyby-router-demo.herokuapp.com/',
+  cache: new InMemoryCache(),
+});
 
-  const Chat = () => {
+
+const Chat = () => {
     return (
-        <div>chat window
-
-        </div>
+        <div>CHAT</div>
     )
 }
-export default () => (
-    <ApolloProvider client ={client}>
-        <chat />
-        
+
+export default ()=>{
+    <ApolloProvider client={client}>
+        <Chat />
     </ApolloProvider>
-)
+}

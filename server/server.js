@@ -1,10 +1,17 @@
 const { createYoga } = require("graphql-yoga");
-const { createServer } = require("http");
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLID, GraphQLList } = require("graphql");
+const express = require("express");
+const cors = require("cors");
+const {
+  GraphQLSchema,
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLID,
+  GraphQLList,
+} = require("graphql");
 
 const messages = [];
 
-
+// Define the Message type
 const MessageType = new GraphQLObjectType({
   name: "Message",
   fields: {
@@ -14,7 +21,7 @@ const MessageType = new GraphQLObjectType({
   },
 });
 
-
+// Define the Query type
 const QueryType = new GraphQLObjectType({
   name: "Query",
   fields: {
@@ -28,7 +35,7 @@ const QueryType = new GraphQLObjectType({
   },
 });
 
-
+// Define the Mutation type
 const MutationType = new GraphQLObjectType({
   name: "Mutation",
   fields: {
@@ -40,7 +47,7 @@ const MutationType = new GraphQLObjectType({
       },
       resolve: (_, { user, content }) => {
         try {
-          const id = messages.length;
+          const id = messages.length + 1;
           const message = { id, user, content };
           messages.push(message);
           console.log("Message added:", message);
@@ -54,21 +61,24 @@ const MutationType = new GraphQLObjectType({
   },
 });
 
-
+// Create the GraphQL schema
 const schema = new GraphQLSchema({
   query: QueryType,
   mutation: MutationType,
 });
 
+// Initialize Express app
+const app = express();
+app.use(cors());
 
+// Attach Yoga middleware to Express
 const yoga = createYoga({
   schema,
+  graphqlEndpoint: "/graphql", // Set the endpoint explicitly
 });
+app.use("/graphql", yoga);
 
-
-const server = createServer(yoga);
-
-
-server.listen(4000, () => {
-  console.log("Server running at http://localhost:4000");
+// Start the server
+app.listen(4000, () => {
+  console.log("Server running at http://localhost:4000/graphql");
 });

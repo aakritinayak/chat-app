@@ -1,22 +1,18 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App.jsx";
-import { Alert } from "shards-react";
-import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
+import React from 'react';
+import * as ReactDOM from 'react-dom/client';
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import App from './App';
+
+const client = new ApolloClient({
+  uri: 'http://localhost:4000/graphql', 
+  cache: new InMemoryCache(),
+});
 
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "shards-ui/dist/css/shards.min.css";
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-
-import Chat from "./Chat";
-
-const ChatApp = () => <Chat />;
-
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
+root.render(
+  <ApolloProvider client={client}>
     <App />
-    <ChatApp /> {/* Rendered the ChatApp component */}
-  </StrictMode>
+  </ApolloProvider>,
 );

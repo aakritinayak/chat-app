@@ -30,16 +30,10 @@ const SignIn = () => {
       });
       
       if (response.data) {
-        const { token, user } = response.data.signIn;
-        // Store the token in localStorage or other persistent storage
-        localStorage.setItem("authToken", token);
-
-        // You can store user info (if needed)
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("user", response.data.signIn.id);
 
         // Redirect to another page (e.g., home)
-        console.log("Logged in successfully", user);
-        localStorage.setItem('user',data.signIn.id);
+        console.log("Logged in successfully", response.data.signIn.id);
         navigate("/"); // Or any other page you want
       }
     } catch (err) {

@@ -1,84 +1,40 @@
-const { createYoga } = require("graphql-yoga");
+
 const express = require("express");
 const cors = require("cors");
-const {
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLID,
-  GraphQLList,
-} = require("graphql");
+const {ApolloServer} = require('@apollo/server');
+const {expressMiddleware} = require('@apollo/server/express4');
+const mongoose = require("mongoose");
+const { createYoga } = require("graphql-yoga");
+const typeDefs = require('./graphql/typeDefs')
+const query = require('./graphql/query')
+const mutation = require('./graphql/mutation')
 
-const messages = [];
+// Connect to MongoDB
+mongoose.connect("mongodb+srv://akashakp0037:akash@cluster0.p4thj.mongodb.net/")
+.then(() => console.log("MongoDB is connected"))
+.catch((err) => console.error("MongoDB connection error:", err));
 
-// Define the Message type
-const MessageType = new GraphQLObjectType({
-  name: "Message",
-  fields: {
-    id: { type: GraphQLID },
-    user: { type: GraphQLString },
-    content: { type: GraphQLString },
-  },
-});
+let users = [
+  { id: '1', username: 'Alice', email:'alice@gmail.com'  },
+  { id: '2', username: 'Bob', email: 'bob@gmail.com' }
+];
 
-// Define the Query type
-const QueryType = new GraphQLObjectType({
-  name: "Query",
-  fields: {
-    messages: {
-      type: new GraphQLList(MessageType),
-      resolve: () => {
-        console.log("Fetching messages:", messages);
-        return messages;
-      },
-    },
-  },
-});
+async function startServer(){
+  const app = express();
+  const server = new ApolloServer({
+    typeDefs: typeDefs,
+    resolvers:{
+      Query: query,
+      Mutation: mutation
+    }
+  });
+  app.use(express.json());
+  app.use(cors());
+  await server.start();
+  app.use("/graphql",expressMiddleware(server));
+  app.listen(4000, () => {
+    console.log("Server running at http://localhost:4000/graphql");
+  });
+}
 
-// Define the Mutation type
-const MutationType = new GraphQLObjectType({
-  name: "Mutation",
-  fields: {
-    postMessage: {
-      type: GraphQLID,
-      args: {
-        user: { type: GraphQLString },
-        content: { type: GraphQLString },
-      },
-      resolve: (_, { user, content }) => {
-        try {
-          const id = messages.length + 1;
-          const message = { id, user, content };
-          messages.push(message);
-          console.log("Message added:", message);
-          return id;
-        } catch (error) {
-          console.error("Error in postMessage resolver:", error);
-          throw new Error("Failed to post message.");
-        }
-      },
-    },
-  },
-});
-
-// Create the GraphQL schema
-const schema = new GraphQLSchema({
-  query: QueryType,
-  mutation: MutationType,
-});
-
-// Initialize Express app
-const app = express();
-app.use(cors());
-
-// Attach Yoga middleware to Express
-const yoga = createYoga({
-  schema,
-  graphqlEndpoint: "/graphql", // Set the endpoint explicitly
-});
-app.use("/graphql", yoga);
-
-// Start the server
-app.listen(4000, () => {
-  console.log("Server running at http://localhost:4000/graphql");
-});
+startServer();

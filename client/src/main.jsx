@@ -1,4 +1,5 @@
 import React from 'react';
+import './index.css';
 import * as ReactDOM from 'react-dom/client';
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import App from './App';

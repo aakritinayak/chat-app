@@ -4,12 +4,17 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@apollo/server": "^4.11.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "graphql": "^16.10.0",
-    "graphql-yoga": "^5.10.6"
+    "graphql-iso-date": "^3.6.1",
+    "graphql-yoga": "^5.10.6",
+    "mongoose": "^8.9.1",
+    "nodemon": "^3.1.9"
   }
 }

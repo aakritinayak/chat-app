@@ -22,32 +22,32 @@ mutation($chatRoomId: ID!, $content: String!, $senderId: ID!){
 
 const ChatRoom = () => {
   const { roomId } = useParams();
-  const userId = localStorage.getItem('user');
+//   const userId = localStorage.getItem('user');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
 
-  const [getMessages, { data, loading, error }] = useMutation(getMessage);
+//   const [getMessages, { data, loading, error }] = useMutation(getMessage);
 
   const handleSendMessage = () => {
-    try {
-        await getMessages({
-          variables: {
-            name: roomName,
-            content: message,
-            senderId: userId
-          },
-        });
-        console.log('Room created successfully:', data);
-        setRoomName(''); // Clear input
-      } catch (err) {
-        console.error('Error creating room:', err.message);
-        if (err.graphQLErrors) {
-          console.error('GraphQL Errors:', err.graphQLErrors);
-        }
-        if (err.networkError) {
-          console.error('Network Error:', err.networkError);
-        }
-      }
+    // try {
+    //     await getMessages({
+    //       variables: {
+    //         name: roomName,
+    //         content: message,
+    //         senderId: userId
+    //       },
+    //     });
+    //     console.log('Room created successfully:', data);
+    //     setRoomName(''); // Clear input
+    //   } catch (err) {
+    //     console.error('Error creating room:', err.message);
+    //     if (err.graphQLErrors) {
+    //       console.error('GraphQL Errors:', err.graphQLErrors);
+    //     }
+    //     if (err.networkError) {
+    //       console.error('Network Error:', err.networkError);
+    //     }
+    //   }
     if (message.trim()) {
       setMessages([...messages, { id: messages.length + 1, content: message, sender: 'User' }]);
       setMessage('');

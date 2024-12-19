@@ -10,7 +10,7 @@ const query = require('./graphql/query')
 const mutation = require('./graphql/mutation')
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://akashakp0037:akash@cluster0.p4thj.mongodb.net/")
+mongoose.connect("mongodb+srv://aakriti:akash@cluster0.p4thj.mongodb.net/")
 .then(() => console.log("MongoDB is connected"))
 .catch((err) => console.error("MongoDB connection error:", err));
 

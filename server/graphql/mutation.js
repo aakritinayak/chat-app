@@ -88,7 +88,7 @@ const Mutation = {
           console.error('Error sending message:', err);
           throw new Error('Failed to send message');
         }
-      },
+      }
   };
 
 module.exports = Mutation;

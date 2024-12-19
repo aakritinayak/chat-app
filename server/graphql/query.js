@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const userModel = require('../models/user.model');
-const ChatRoomModel = require('../models/chatroom.model')
+const ChatRoomModel = require('../models/chatroom.model');
+const MessageModel = require('../models/message.model');
 
 const Query = {
   getUser: async () => {
@@ -22,6 +23,21 @@ const Query = {
       throw new Error('Failed to fetch chat rooms');
     }
   },
+  getMessages: async (_, { chatRoomId, limit = 10, offset = 0 }) => {
+    try {
+      // Fetch messages for the given chatRoomId with pagination
+      const messages = await MessageModel.find({ chatRoom:chatRoomId })
+        .sort({ createdAt: -1 }) // Sort by creation date (most recent first)
+        .skip(offset) // Skip the given number of messages (for pagination)
+        .limit(limit) // Limit the number of messages returned
+        .populate('sender');
+
+      return messages;
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      throw new Error("Failed to fetch messages");
+    }
+  }
 };
 
 module.exports = Query;

@@ -75,6 +75,7 @@ const Mutation = {
           const savedMessage = await message.save();
     
           // Add message to chat room
+          chatRoom.participants.push(sender._id);
           chatRoom.messages.push(savedMessage._id);
           await chatRoom.save();
     

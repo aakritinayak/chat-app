@@ -27,17 +27,32 @@ const Query = {
     try {
       // Fetch messages for the given chatRoomId with pagination
       const messages = await MessageModel.find({ chatRoom:chatRoomId })
-        .sort({ createdAt: -1 }) // Sort by creation date (most recent first)
-        .skip(offset) // Skip the given number of messages (for pagination)
-        .limit(limit) // Limit the number of messages returned
-        .populate('sender');
+            .sort({ createdAt: -1 }) // Sort by creation date (most recent first)
+            .skip(offset) // Skip the given number of messages (for pagination)
+            .limit(limit) // Limit the number of messages returned
+            .populate('sender');
 
-      return messages;
+            return messages;
     } catch (error) {
-      console.error("Error fetching messages:", error);
-      throw new Error("Failed to fetch messages");
+            console.error("Error fetching messages:", error);
+            throw new Error("Failed to fetch messages");
+    }
+  },
+  getParticipants: async (_, { chatRoomId }) => {
+    try {
+      // Fetch the chat room and populate participants
+      const chatRoom = await ChatRoomModel.findById(chatRoomId).populate('participants');
+      
+      if (!chatRoom) {
+        throw new Error("Chat room not found");
+      }
+      
+      return chatRoom;
+    } catch (error) {
+      console.error("Error fetching participants:", error);
+      throw new Error("Failed to fetch participants");
     }
   }
-};
+}
 
 module.exports = Query;

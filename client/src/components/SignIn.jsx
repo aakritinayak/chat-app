@@ -11,7 +11,7 @@ const SIGN_IN = gql`
   }
 `;
 
-const SignIn = () => {
+const SignIn = ({setIsAuthenticated}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate(); // Hook to navigate after sign in
@@ -31,9 +31,7 @@ const SignIn = () => {
       
       if (response.data) {
         localStorage.setItem("user", response.data.signIn.id);
-
-        // Redirect to another page (e.g., home)
-        console.log("Logged in successfully", response.data.signIn.id);
+        setIsAuthenticated(true);
         navigate("/"); // Or any other page you want
       }
     } catch (err) {

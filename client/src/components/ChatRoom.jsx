@@ -20,6 +20,17 @@ mutation($chatRoomId: ID!, $content: String!, $senderId: ID!){
 }
 `
 
+const GetParticipants = gql`
+query($chatRoomId: ID!) {
+  getParticipants(chatRoomId: $chatRoomId) {
+    name,
+    participants {
+      username
+    }
+  }
+}
+`
+
 const GetMessage = gql`
 query($chatRoomId: ID!){
   getMessages(chatRoomId: $chatRoomId) {
@@ -40,6 +51,9 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
 
   const {data,loading,error} = useQuery(GetMessage,{
+    variables: {chatRoomId:roomId}
+  });
+  const {data:pdata,loading:ploading,error:perror} = useQuery(GetParticipants,{
     variables: {chatRoomId:roomId}
   });
 
@@ -71,49 +85,68 @@ const ChatRoom = () => {
     }
   };
 
-  if(loading){
+  if(loading||ploading){
     return (<div>Loading....</div>)
   }
 
   if(error){
     return (<div>Error: {error.message}</div>)
   }
+  if(perror){
+    return (<div>Error: {perror.message}</div>)
+  }
 
-  console.log(data)
+  console.log("pdata",pdata.getParticipants.participants)
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-4xl font-bold mb-6">Chat Room {roomId}</h1>
+    <div className="max-w-4xl mx-auto p-6 flex gap-2">
+        <div>
+            <div className='h-[500px] rounded-lg shadow-lg w-[300px] overflow-hidden'>
+                <div className='h-[100px] bg-blue-500 flex items-center justify-center'>
+                    <h1 className='text-4xl text-white'>
+                        Pariticipants
+                    </h1>
+                </div>
+                <div className='h-[400px] overflow-scroll'>
+                    {pdata.getParticipants.participants?.map((participant)=>{
+                        return(<div className='text-lg p-5 border-b-2'>{participant.username}</div>)
+                    })}
+                </div>
+            </div>
+        </div>
+        <div>
+            <h1 className="text-4xl font-bold mb-6">Chat Room {pdata.getParticipants.name}</h1>
 
-      <div className="space-y-4">
-        {data.getMessages?.length === 0 || data.getMessages==null ? (
-          <p>No messages yet. Be the first to send one!</p>
-        ) : (
-          <ul className="space-y-2">
-            {data.getMessages.map((msg) => (
-              <li key={msg.id} className="border p-3 rounded-md shadow-md">
-                <strong>{msg.sender.username}: </strong>{msg.content}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+            <div className="space-y-4">
+                {data.getMessages?.length === 0 || data.getMessages==null ? (
+                <p>No messages yet. Be the first to send one!</p>
+                ) : (
+                <ul className="space-y-2">
+                    {data.getMessages.map((msg) => (
+                    <li key={msg.id} className="border p-3 rounded-md shadow-md">
+                        <strong>{msg.sender.username}: </strong>{msg.content}
+                    </li>
+                    ))}
+                </ul>
+                )}
+            </div>
 
-      <div className="mt-4">
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your message"
-          className="border p-3 w-full rounded-md"
-        />
-        <button
-          onClick={handleSendMessage}
-          className="bg-blue-500 text-white p-3 w-full mt-2 rounded-md"
-        >
-          Send Message
-        </button>
-      </div>
+            <div className="mt-4">
+                <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type your message"
+                className="border p-3 w-full rounded-md"
+                />
+                <button
+                onClick={handleSendMessage}
+                className="bg-blue-500 text-white p-3 w-full mt-2 rounded-md"
+                >
+                Send Message
+                </button>
+            </div>
+        </div>
     </div>
   );
 };

@@ -58,31 +58,28 @@ const Mutation = {
       },
       sendMessage: async (_, { chatRoomId, content, senderId }) => {
         try {
-          // Validate sender
           const sender = await userModel.findById(senderId);
           if (!sender) {
             throw new Error('Invalid sender ID');
           }
     
-          // Validate chat room
           const chatRoom = await ChatRoom.findById(chatRoomId);
           if (!chatRoom) {
             throw new Error('Invalid chat room ID');
           }
     
-          // Create and save the message
           const message = new MessageModel({ content, sender: senderId, chatRoom: chatRoomId });
           const savedMessage = await message.save();
     
-          // Add message to chat room
-          chatRoom.participants.push(sender._id);
+          if (!chatRoom.participants.find(participant => participant.toString() === sender._id.toString())) {
+            chatRoom.participants.push(sender._id);
+          }
           chatRoom.messages.push(savedMessage._id);
           await chatRoom.save();
     
-          // Fetch and populate the saved message
           const populatedMessage = await MessageModel.findById(savedMessage._id)
-            .populate('sender') // Populate sender details
-            .populate('chatRoom'); // Populate chat room details
+            .populate('sender') 
+            .populate('chatRoom'); 
     
           return populatedMessage;
         } catch (err) {

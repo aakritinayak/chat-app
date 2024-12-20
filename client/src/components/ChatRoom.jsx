@@ -100,7 +100,7 @@ const ChatRoom = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 flex gap-2">
-        <div>
+        <div className='hidden sm:block'>
             <div className='h-[500px] rounded-lg shadow-lg w-[300px] overflow-hidden'>
                 <div className='h-[100px] bg-blue-500 flex items-center justify-center'>
                     <h1 className='text-4xl text-white'>

@@ -18,11 +18,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<ProtectRoute user={isAuthenticated} />}>
+        <Route element={<ProtectRoute user={localStorage.getItem('user')!=null} />}>
           <Route path="/" element={<Home />} />
           <Route path="/chat/:roomId" element={<ChatRoom />} />
         </Route>
-        <Route element={<ProtectRoute user={!isAuthenticated} redirect='/' />}>
+        <Route element={<ProtectRoute user={localStorage.getItem('user')==null} redirect='/' />}>
           <Route path="/signin" element={<SignIn setIsAuthenticated={setIsAuthenticated}/>} />
           <Route path="/signup" element={<SignUp />} />
         </Route>

@@ -13,6 +13,15 @@ const Query = {
       throw new Error('Failed to fetch users');
     }
   },
+  getUserByID: async (_,{userId}) => {
+    try {
+      const users = await userModel.findById(userId);
+      return users;
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      throw new Error('Failed to fetch users');
+    }
+  },
   getChatRooms: async () => {
     try {
       return await ChatRoomModel.find()

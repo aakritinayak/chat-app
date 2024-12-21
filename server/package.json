@@ -15,6 +15,7 @@
     "graphql-iso-date": "^3.6.1",
     "graphql-yoga": "^5.10.6",
     "mongoose": "^8.9.1",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "ws": "^8.18.0"
   }
 }

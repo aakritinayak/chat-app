@@ -26,6 +26,7 @@ const type = `
     
     type Query {
         getUser: [User]
+        getUserByID(userId:ID): User
         getChatRooms: [ChatRoom!]
         getMessages(chatRoomId: ID!, limit: Int, offset: Int): [Message!]
         getParticipants(chatRoomId: ID!):ChatRoom

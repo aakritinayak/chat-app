@@ -1,8 +1,16 @@
 // src/components/ChatRoom.js
 
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+
+const GetUserByID = gql`
+query($userId: ID){
+  getUserByID(userId:$userId) {
+    username
+  }
+}
+`
 
 const SendMessage = gql`
 mutation($chatRoomId: ID!, $content: String!, $senderId: ID!){
@@ -47,15 +55,23 @@ query($chatRoomId: ID!){
 const ChatRoom = () => {
   const { roomId } = useParams();
   const userId = localStorage.getItem('user');
+  const [username,setUsername] = useState();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
+  const [wsMessage,setWsMessage] = useState([]);
+  const wsRef = useRef();
 
   const {data,loading,error} = useQuery(GetMessage,{
     variables: {chatRoomId:roomId}
   });
+
   const {data:pdata,loading:ploading,error:perror} = useQuery(GetParticipants,{
     variables: {chatRoomId:roomId}
   });
+  
+  const {data:udata,loading:uloading,error:uerror} = useQuery(GetUserByID,{
+    variables:{userId:userId}
+  })
 
   const [sendMessage, { data:mdata, loading:mloading, error:merror }] = useMutation(SendMessage);
 
@@ -68,7 +84,6 @@ const ChatRoom = () => {
             senderId: userId
           },
         });
-        console.log('Room created successfully:', mdata);
         setMessage('')
       } catch (err) {
         console.error('Error creating room:', err.message);
@@ -79,13 +94,42 @@ const ChatRoom = () => {
           console.error('Network Error:', err.networkError);
         }
       }
+      wsRef.current.send(JSON.stringify({
+        type:"chat",
+        payload:{
+          content: message,
+          senderId: udata.getUserByID.username
+        }
+      }))
     if (message.trim()) {
       setMessages([...messages, { id: messages.length + 1, content: message, sender: 'User' }]);
       setMessage('');
     }
   };
 
-  if(loading||ploading){
+
+  useEffect(()=>{
+
+
+    const ws = new WebSocket('http://localhost:8080');
+    ws.onmessage = (event)=>{
+      const wsData = event.data.split(',');
+      setWsMessage(m=>[...m,{id:wsData[0],content:wsData[1]}]);
+      console.log(wsMessage);
+    }
+    console.log(wsMessage);
+    wsRef.current = ws;
+    ws.onopen = () => {
+      ws.send(JSON.stringify({
+        type: "join",
+        payload:{
+          roomId : roomId
+        }
+      }))
+    }
+  },[])
+
+  if(loading||ploading||mloading){
     return (<div>Loading....</div>)
   }
 
@@ -118,13 +162,18 @@ const ChatRoom = () => {
             <h1 className="text-4xl font-bold mb-6">Chat Room {pdata.getParticipants.name}</h1>
 
             <div className="space-y-4">
-                {data.getMessages?.length === 0 || data.getMessages==null ? (
+                {(data.getMessages?.length === 0 || data.getMessages==null)&&(wsMessage.length==0) ? (
                 <p>No messages yet. Be the first to send one!</p>
                 ) : (
                 <ul className="space-y-2">
                     {data.getMessages.map((msg) => (
                     <li key={msg.id} className="border p-3 rounded-md shadow-md">
                         <strong>{msg.sender.username}: </strong>{msg.content}
+                    </li>
+                    ))}
+                    {wsMessage?.map((msg) => (
+                    <li key={msg.id} className="border p-3 rounded-md shadow-md">
+                        <strong>{msg?.id}: </strong>{msg?.content}
                     </li>
                     ))}
                 </ul>
